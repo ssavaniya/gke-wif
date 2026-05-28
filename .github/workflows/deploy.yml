@@ -1,0 +1,32 @@
+name: GKE Authentication Test
+
+on:
+  push:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/299817019527/locations/global/workloadIdentityPools/github-action/providers/github-action
+          service_account: github-action-wif@proserv-task01.iam.gserviceaccount.com
+
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: my-tf-cluster
+          location: us-central1-a
+
+      - name: Verify Cluster Access
+        run: kubectl get nodes
