@@ -1,19 +1,29 @@
-
-
 name: Pod Info
 
-steps:
-- id: auth
-  uses: google-github-actions/auth@v0.4.0
-  with:
-    workload_identity_provider: projects/299817019527/locations/global/workloadIdentityPools/github-action/providers/github-action
-    service_account: github-action-wif@proserv-task01.iam.gserviceaccount.com
+on:
+  workflow_dispatch:
 
-- id: get-gke-credentials
-  uses: google-github-actions/get-gke-credentials@v0.4.0
-  with:
-    cluster_name: my-tf-cluster
-    location: us-central1-a
+permissions:
+  id-token: write
+  contents: read
 
-- id: get-pods
-  run: kubectl get pods
+jobs:
+  get-pods:
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/299817019527/locations/global/workloadIdentityPools/github-action/providers/github-action
+          service_account: github-action-wif@proserv-task01.iam.gserviceaccount.com
+
+      - id: get-gke-credentials
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          cluster_name: my-tf-cluster
+          location: us-central1-a
+          project_id: proserv-task01
+
+      - id: get-pods
+        run: kubectl get pods
